@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: rotinalize-api
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:h2:mem:rotinalize;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    username: ${DATABASE_USERNAME:sa}
+    password: ${DATABASE_PASSWORD:}
+    driver-class-name: ${DATABASE_DRIVER:org.h2.Driver}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
+    open-in-view: false
+    properties:
+      hibernate.format_sql: ${JPA_FORMAT_SQL:false}
+
+  h2:
+    console:
+      enabled: ${H2_CONSOLE_ENABLED:true}
+      path: /h2-console
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+jwt:
+  private:
+    key: ${JWT_PRIVATE_KEY:classpath:app.key}
+  public:
+    key: ${JWT_PUBLIC_KEY:classpath:app.pub}
+
+app:
+  reminder:
+    cron: ${REMINDER_CRON:0 0 7 * * *}
+
+management:
+  health:
+    mail:
+      enabled: ${MAIL_HEALTH_ENABLED:false}
