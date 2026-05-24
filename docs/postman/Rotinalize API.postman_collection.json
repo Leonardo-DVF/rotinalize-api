@@ -1,0 +1,795 @@
+{
+  "info": {
+    "_postman_id": "d70a1387-c9b0-4cb6-b50e-832da92a3c8e",
+    "name": "Rotinalize API",
+    "description": "Collection para testar a Rotinalize API localmente. Execute primeiro `Auth / Criar usuário`, depois `Auth / Login`, e siga os demais requests. As variáveis `token`, `userId`, `listId`, `habitId`, `deckId` e `cardId` são preenchidas automaticamente.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": []
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": []
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "listId",
+      "value": ""
+    },
+    {
+      "key": "habitId",
+      "value": ""
+    },
+    {
+      "key": "deckId",
+      "value": ""
+    },
+    {
+      "key": "cardId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Criar Usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.id) {",
+                  "  pm.environment.set('userId', json.id);",
+                  "  pm.collectionVariables.set('userId', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Leonardo\",\n  \"email\": \"leonardo@example.com\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const token = pm.response.text();",
+                  "if (token) {",
+                  "  pm.environment.set('token', token);",
+                  "  pm.collectionVariables.set('token', token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "Leonardo",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "123456",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/authenticate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "authenticate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Meu Perfil",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Usuário",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Leonardo Silva\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Listas de Hábitos",
+      "item": [
+        {
+          "name": "Criar Lista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.id) {",
+                  "  pm.environment.set('listId', json.id);",
+                  "  pm.collectionVariables.set('listId', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Estudos\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/lists",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lists"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Listas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lists",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lists"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Lista por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lists/{{listId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lists",
+                "{{listId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir Lista",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lists/{{listId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lists",
+                "{{listId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Hábitos",
+      "item": [
+        {
+          "name": "Criar Hábito com Data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.id) {",
+                  "  pm.environment.set('habitId', json.id);",
+                  "  pm.collectionVariables.set('habitId', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Estudar Spring Boot\",\n  \"description\": \"Revisar autenticação JWT e Spring Security.\",\n  \"listId\": \"{{listId}}\",\n  \"dueDate\": \"2026-12-31\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/habits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "habits"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Hábito Semanal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Treinar algoritmos\",\n  \"description\": \"Resolver exercícios de lógica.\",\n  \"dias\": [\"SEG\", \"QUA\", \"SEX\"],\n  \"weeklyEndDate\": \"2026-12-31\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/habits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "habits"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Hábitos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/habits",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "habits"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Hábito por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/habits/{{habitId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "habits",
+                "{{habitId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Hábito",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Estudar Spring Security\",\n  \"description\": \"Revisar filtros, JWT e autorização por dono.\",\n  \"active\": true,\n  \"dueDate\": \"2026-12-31\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/habits/{{habitId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "habits",
+                "{{habitId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir Hábito",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/habits/{{habitId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "habits",
+                "{{habitId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Decks",
+      "item": [
+        {
+          "name": "Criar Deck",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.id) {",
+                  "  pm.environment.set('deckId', json.id);",
+                  "  pm.collectionVariables.set('deckId', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Spring Boot\",\n  \"description\": \"Cards sobre backend Java.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/decks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "decks"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Decks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/decks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "decks"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Deck",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Spring Security\",\n  \"description\": \"Cards sobre autenticação e autorização.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/decks/{{deckId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "decks",
+                "{{deckId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir Deck",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/decks/{{deckId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "decks",
+                "{{deckId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Flashcards",
+      "item": [
+        {
+          "name": "Criar Flashcard",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.id) {",
+                  "  pm.environment.set('cardId', json.id);",
+                  "  pm.collectionVariables.set('cardId', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deckId\": \"{{deckId}}\",\n  \"frontText\": \"O que é JWT?\",\n  \"backText\": \"Um token assinado usado para transmitir claims entre cliente e servidor.\",\n  \"tag\": \"security\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/flashcards",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Flashcards do Deck",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/flashcards/deck/{{deckId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "deck",
+                "{{deckId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Revisões de Hoje",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/flashcards/review-today",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "review-today"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar Revisão",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/flashcards/{{cardId}}/review?rating=BOM",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "{{cardId}}",
+                "review"
+              ],
+              "query": [
+                {
+                  "key": "rating",
+                  "value": "BOM"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Flashcard",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deckId\": \"{{deckId}}\",\n  \"frontText\": \"Para que serve um JWT?\",\n  \"backText\": \"Para representar claims assinadas, normalmente em autenticação stateless.\",\n  \"tag\": \"security\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/flashcards/{{cardId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "{{cardId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir Flashcard",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/flashcards/{{deckId}}/{{cardId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "flashcards",
+                "{{deckId}}",
+                "{{cardId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
